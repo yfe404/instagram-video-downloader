@@ -38,25 +38,9 @@ Download videos from Instagram profiles, reels, stories, and IGTV using Instaloa
 
 - **Instagram Session Cookies (Netscape Format)** (string)
   - Provide your Instagram session cookies in Netscape HTTP Cookie File format
-  - If provided, username/password are not required
   - Export cookies from your browser using extensions like 'Get cookies.txt' or 'EditThisCookie'
   - See **Authentication** section below for details on obtaining session cookies
-
-- **Instagram Username** (string)
-  - Your Instagram username for authentication
-  - Required if session cookies are not provided
-  - Helps avoid 401/403 errors from Instagram's anti-scraping measures
-  - Example: `your_username`
-
-- **Instagram Password** (string)
-  - Your Instagram password (stored securely and never logged)
-  - Required if session cookies are not provided
-
-- **TOTP Secret Key (2FA)** (string)
-  - Your 2FA TOTP secret key from authenticator app setup
-  - Base32 format, example: `JBSWY3DPEHPK3PXP`
-  - Leave empty if 2FA is not enabled
-  - Only needed when using username/password authentication
+  - Without authentication, you may encounter 401/403 errors due to Instagram's anti-scraping measures
 
 - **Content Types to Download** (array)
   - Select which types of video content to download
@@ -200,9 +184,7 @@ The Actor stores data in the Apify Dataset. Each item contains:
 
 ## Authentication
 
-The Actor supports two authentication methods to access Instagram content:
-
-### Method 1: Session Cookies (Recommended)
+### Session Cookies
 
 Use your existing Instagram session cookies to authenticate without providing your password.
 
@@ -235,57 +217,14 @@ Use your existing Instagram session cookies to authenticate without providing yo
 ```
 
 **Advantages:**
-- More secure (no password stored)
+- More secure (no password stored in the Actor)
 - Bypasses 2FA requirement
-- Faster authentication
 - Session persists until you log out from browser
+- Easy to update when needed
 
-### Method 2: Username & Password
+## Error Handling
 
-Provide your Instagram username and password directly.
-
-**Requirements:**
-- Instagram username
-- Instagram password
-- TOTP secret key (if 2FA is enabled on your account)
-
-**Note:** If 2FA is enabled, you must provide your TOTP secret key (the Base32 code shown when setting up your authenticator app).
-
-### Which Method to Use?
-
-- **Use Session Cookies** if you want to avoid entering your password or have 2FA enabled
-- **Use Username/Password** for automated scenarios or if you don't want to manage cookies
-
-## Error Handling & Retries
-
-The Actor includes intelligent retry logic to handle Instagram's anti-scraping measures:
-
-### Automatic Retries
-
-**Retryable Errors:**
-- Challenge required (CAPTCHA)
-- Rate limiting (429/503 errors)
-- Connection errors
-- Temporary server issues
-
-**Retry Strategy:**
-- Exponential backoff (delays double with each retry: 5s → 10s → 20s)
-- Random jitter to prevent thundering herd
-- Configurable max retries (default: 3)
-- Configurable initial delay (default: 5 seconds)
-
-### Rate Limiting Prevention
-
-- **Delay Between Profiles**: Configurable wait time between processing profiles (default: 2 seconds)
-- **Adaptive Backoff**: Automatically increases delays when challenges/rate limits detected
-- **State Persistence**: Failed profiles with retryable errors can be retried in next run
-
-### Error Classification
-
-Each error in the dataset includes:
-- `error_type`: Specific error category (e.g., "challenge_required", "rate_limit", "profile_not_found")
-- `is_retryable`: Boolean indicating if error can be retried
-- `user_guidance`: Actionable suggestions for resolving the error
+The Actor automatically handles common Instagram errors:
 
 ### Common Error Types & Solutions
 
@@ -295,7 +234,7 @@ Each error in the dataset includes:
 | `rate_limit` | Too many requests | Increase `delayBetweenProfiles`, use proxies, reduce `maxVideosPerProfile` |
 | `profile_not_found` | Profile doesn't exist | Verify username spelling |
 | `private_profile` | Profile is private | Provide authentication and follow the account |
-| `unauthorized` | Session expired | Refresh session cookies or provide valid credentials |
+| `unauthorized` | Session expired | Refresh session cookies from your browser |
 | `connection_error` | Network issue | Check internet connectivity, try again |
 
 ## Limitations
@@ -333,35 +272,6 @@ The Actor handles various error scenarios:
 - **Download failures**: Individual video download failures are logged but don't stop the Actor
 
 All errors are logged and included in the output dataset with `download_status: "failed"` and an `error_message` field.
-
-## Development
-
-### Local Testing
-
-```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Run the Actor locally
-apify run
-```
-
-### Project Structure
-
-```
-instagram/
-├── .actor/
-│   ├── actor.json           # Actor configuration
-│   ├── input_schema.json    # Input UI definition
-│   ├── dataset_schema.json  # Output structure
-│   └── Dockerfile           # Docker configuration
-├── src/
-│   ├── __main__.py         # Entry point
-│   ├── main.py             # Main logic
-│   └── utils.py            # Helper functions
-├── requirements.txt         # Python dependencies
-└── README.md               # This file
-```
 
 ## Resources
 
