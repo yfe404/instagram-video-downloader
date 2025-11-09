@@ -285,7 +285,9 @@ This Actor is provided as-is for educational and research purposes. Users are re
 
 ## Support
 
+This is an independent project and is not officially supported by Apify.
+
 For issues or questions:
-- Check the [Instaloader documentation](https://instaloader.github.io/)
-- Review [Apify Actor development guide](https://docs.apify.com/platform/actors/development)
-- Contact support through the Apify platform
+- Check the [Instaloader documentation](https://instaloader.github.io/) for Instagram scraping issues
+- Review [Apify Actor development guide](https://docs.apify.com/platform/actors/development) for Actor-related questions
+- Open an issue on the GitHub repository for bugs or feature requests
