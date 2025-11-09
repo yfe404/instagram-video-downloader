@@ -1,0 +1,136 @@
+{
+  "title": "Instagram Video Output",
+  "type": "object",
+  "properties": {
+    "username": {
+      "title": "Username",
+      "type": "string",
+      "description": "Instagram username of the profile"
+    },
+    "post_shortcode": {
+      "title": "Post Shortcode",
+      "type": "string",
+      "description": "Unique shortcode identifier for the post"
+    },
+    "post_url": {
+      "title": "Post URL",
+      "type": "string",
+      "description": "Direct URL to the Instagram post"
+    },
+    "video_url": {
+      "title": "Video URL",
+      "type": "string",
+      "description": "Direct URL to the video file"
+    },
+    "video_storage_key": {
+      "title": "Video Storage Key",
+      "type": "string",
+      "description": "Key-Value Store key for the downloaded video file"
+    },
+    "is_video": {
+      "title": "Is Video",
+      "type": "boolean",
+      "description": "Whether this post contains a video"
+    },
+    "content_type": {
+      "title": "Content Type",
+      "type": "string",
+      "description": "Type of content (post, reel, story, igtv)"
+    },
+    "caption": {
+      "title": "Caption",
+      "type": "string",
+      "description": "Post caption/description"
+    },
+    "timestamp": {
+      "title": "Timestamp",
+      "type": "string",
+      "description": "When the post was created (ISO 8601 format)"
+    },
+    "owner": {
+      "title": "Owner",
+      "type": "string",
+      "description": "Username of the post owner"
+    },
+    "likes": {
+      "title": "Likes",
+      "type": "integer",
+      "description": "Number of likes on the post"
+    },
+    "comments_count": {
+      "title": "Comments Count",
+      "type": "integer",
+      "description": "Number of comments on the post"
+    },
+    "video_views": {
+      "title": "Video Views",
+      "type": "integer",
+      "description": "Number of video views"
+    },
+    "video_duration": {
+      "title": "Video Duration",
+      "type": "number",
+      "description": "Video duration in seconds"
+    },
+    "engagement_rate": {
+      "title": "Engagement Rate",
+      "type": "number",
+      "description": "Calculated engagement rate percentage"
+    },
+    "hashtags": {
+      "title": "Hashtags",
+      "type": "array",
+      "description": "List of hashtags used in the post",
+      "items": {
+        "type": "string"
+      }
+    },
+    "location": {
+      "title": "Location",
+      "type": "string",
+      "description": "Location tag if available"
+    },
+    "comments": {
+      "title": "Comments",
+      "type": "array",
+      "description": "List of comments on the post",
+      "items": {
+        "type": "object",
+        "properties": {
+          "owner": {
+            "type": "string",
+            "description": "Comment author username"
+          },
+          "text": {
+            "type": "string",
+            "description": "Comment text"
+          },
+          "created_at": {
+            "type": "string",
+            "description": "Comment timestamp"
+          },
+          "likes": {
+            "type": "integer",
+            "description": "Comment likes count"
+          }
+        }
+      }
+    },
+    "download_status": {
+      "title": "Download Status",
+      "type": "string",
+      "description": "Status of the download (success, failed, skipped)"
+    },
+    "error_message": {
+      "title": "Error Message",
+      "type": "string",
+      "description": "Error message if download failed"
+    },
+    "scraped_at": {
+      "title": "Scraped At",
+      "type": "string",
+      "description": "When this data was scraped (ISO 8601 format)"
+    }
+  },
+  "required": ["username", "post_url", "is_video", "content_type", "download_status"]
+}

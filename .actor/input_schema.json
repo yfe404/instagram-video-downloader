@@ -1,0 +1,160 @@
+{
+  "title": "Instagram Video Downloader Input",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "usernames": {
+      "title": "Instagram Usernames",
+      "type": "array",
+      "description": "List of Instagram usernames to download videos from (without @ symbol)",
+      "editor": "stringList",
+      "items": {
+        "type": "string"
+      },
+      "example": ["natgeo", "nasa"],
+      "minItems": 1
+    },
+    "proxyConfiguration": {
+      "title": "Proxy configuration",
+      "type": "object",
+      "description": "Select proxies to be used by your crawler. Using proxies is highly recommended for Instagram scraping to avoid IP blocks and rate limiting.",
+      "prefill": {
+        "useApifyProxy": true
+      },
+      "editor": "proxy"
+    },
+    "sessionCookies": {
+      "title": "Instagram Session Cookies (Netscape Format)",
+      "type": "string",
+      "description": "Provide your Instagram session cookies in Netscape HTTP Cookie File format. Export cookies from your browser using extensions like 'Get cookies.txt' or 'EditThisCookie'. Without authentication, you may encounter 401/403 errors due to Instagram's anti-scraping measures.",
+      "editor": "textarea",
+      "isSecret": true,
+      "example": "# Netscape HTTP Cookie File\n.instagram.com\tTRUE\t/\tTRUE\t0\tsessionid\t123456789\n.instagram.com\tTRUE\t/\tTRUE\t0\tcsrftoken\tabcdef"
+    },
+    "contentTypes": {
+      "title": "Content Types to Download",
+      "type": "array",
+      "description": "Select which types of video content to download",
+      "editor": "select",
+      "items": {
+        "type": "string",
+        "enum": ["posts", "reels", "stories", "igtv"]
+      },
+      "default": ["posts", "reels"],
+      "uniqueItems": true
+    },
+    "maxVideosPerProfile": {
+      "title": "Max Videos Per Profile",
+      "type": "integer",
+      "description": "Maximum number of videos to download per profile (0 = unlimited)",
+      "default": 50,
+      "minimum": 0,
+      "maximum": 1000
+    },
+    "storageMethod": {
+      "title": "Storage Method",
+      "type": "string",
+      "description": "How to store downloaded videos",
+      "editor": "select",
+      "enum": ["dataset_urls", "key_value_store", "both"],
+      "enumTitles": [
+        "Dataset URLs Only (saves video URLs and metadata)",
+        "Key-Value Store (downloads videos to KV store)",
+        "Both (videos in KV store + URLs in dataset)"
+      ],
+      "default": "both"
+    },
+    "includeMetadata": {
+      "title": "Metadata to Include",
+      "type": "object",
+      "description": "Select which metadata to collect for each video",
+      "editor": "json",
+      "properties": {
+        "basicInfo": {
+          "title": "Basic Info",
+          "type": "boolean",
+          "description": "Caption, date, owner username, likes count",
+          "default": true
+        },
+        "engagementMetrics": {
+          "title": "Engagement Metrics",
+          "type": "boolean",
+          "description": "Comments count, video views, engagement rate",
+          "default": true
+        },
+        "comments": {
+          "title": "Comments",
+          "type": "boolean",
+          "description": "Download all comments on the video posts",
+          "default": false
+        },
+        "locationHashtags": {
+          "title": "Location & Hashtags",
+          "type": "boolean",
+          "description": "Geotags and hashtags used in the post",
+          "default": true
+        }
+      }
+    },
+    "filterOptions": {
+      "title": "Filter Options",
+      "type": "object",
+      "description": "Additional filtering options",
+      "editor": "json",
+      "properties": {
+        "videosOnly": {
+          "title": "Videos Only",
+          "type": "boolean",
+          "description": "Skip posts that don't contain videos",
+          "default": true
+        },
+        "minLikes": {
+          "title": "Minimum Likes",
+          "type": "integer",
+          "description": "Only download videos with at least this many likes (0 = no minimum)",
+          "default": 0,
+          "minimum": 0
+        },
+        "dateFrom": {
+          "title": "Date From",
+          "type": "string",
+          "description": "Only download videos from this date onwards (YYYY-MM-DD format)",
+          "editor": "textfield",
+          "example": "2024-01-01"
+        },
+        "dateTo": {
+          "title": "Date To",
+          "type": "string",
+          "description": "Only download videos up to this date (YYYY-MM-DD format)",
+          "editor": "textfield",
+          "example": "2025-12-31"
+        }
+      }
+    },
+    "maxRetries": {
+      "title": "Max Retries",
+      "type": "integer",
+      "description": "Maximum number of retry attempts for failed requests (e.g., rate limits, challenges)",
+      "default": 3,
+      "minimum": 0,
+      "maximum": 10
+    },
+    "retryDelay": {
+      "title": "Initial Retry Delay (seconds)",
+      "type": "number",
+      "description": "Initial delay in seconds before first retry (doubles with each retry)",
+      "default": 5,
+      "minimum": 1,
+      "maximum": 60
+    },
+    "delayBetweenProfiles": {
+      "title": "Delay Between Profiles (seconds)",
+      "type": "number",
+      "description": "Seconds to wait between processing profiles to avoid rate limiting",
+      "default": 2,
+      "minimum": 0,
+      "maximum": 60
+    }
+  },
+  "required": ["usernames"]
+}

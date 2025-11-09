@@ -1,0 +1,52 @@
+{
+  "actorSpecification": 1,
+  "name": "instagram-video-downloader",
+  "title": "Instagram Video Downloader",
+  "description": "Download videos from Instagram profiles, reels, stories, and IGTV using Instaloader. Extracts comprehensive metadata including engagement metrics, comments, and location data. Supports migration/restart with state persistence and intelligent retry logic.",
+  "version": "1.2",
+  "meta": {
+    "templateId": "python-start"
+  },
+  "input": "./input_schema.json",
+  "dockerfile": "./Dockerfile",
+  "readme": "./README.md",
+  "categories": [
+    "SOCIAL_MEDIA"
+  ],
+  "storages": {
+    "dataset": {
+      "actorSpecification": 1,
+      "title": "Instagram Video Data",
+      "views": {
+        "overview": {
+          "title": "Overview",
+          "transformation": {
+            "fields": [
+              "username",
+              "post_url",
+              "caption",
+              "timestamp",
+              "likes",
+              "comments_count",
+              "video_views",
+              "is_video"
+            ]
+          },
+          "display": {
+            "component": "table",
+            "properties": {
+              "caption": {
+                "label": "Caption",
+                "format": "text"
+              },
+              "likes": {
+                "label": "Likes",
+                "format": "number"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

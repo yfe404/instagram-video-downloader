@@ -1,0 +1,8 @@
+# Apify SDK for building Actors
+apify>=1.7.2
+
+# Instaloader for Instagram scraping
+instaloader>=4.15
+
+# HTTP requests library (used by instaloader and for video downloads)
+requests>=2.31.0
