@@ -25,6 +25,69 @@ from .retry_utils import (
 )
 
 
+def get_posts_with_fallback(loader: instaloader.Instaloader, profile: instaloader.Profile, logged_in: bool):
+    """
+    Get posts iterator with fallback strategy to avoid GraphQL 403 errors.
+
+    When logged in, Instagram's GraphQL API often returns 403 errors.
+    For public profiles, anonymous access works better and includes 12 cached posts
+    in the profile metadata. This function uses anonymous access for public profiles.
+    """
+    # For public profiles, anonymous access works better
+    # Instagram blocks GraphQL when logged in but allows it anonymously
+    if not profile.is_private:
+        Actor.log.info('Public profile detected - using anonymous access to avoid GraphQL blocks')
+        try:
+            # Create a fresh anonymous loader
+            anon_loader = instaloader.Instaloader(
+                quiet=True,
+                download_video_thumbnails=False,
+                save_metadata=False,
+            )
+
+            # Copy proxy settings if available
+            if loader.context._session.proxies:
+                anon_loader.context._session.proxies = loader.context._session.proxies
+
+            # Load profile anonymously - this gives us cached posts in metadata
+            anon_profile = instaloader.Profile.from_username(anon_loader.context, profile.username)
+            Actor.log.info(f'Loaded profile anonymously (Posts: {anon_profile.mediacount})')
+
+            # Use the anonymous profile's get_posts() which works with cached data
+            yield from anon_profile.get_posts()
+            return
+        except Exception as e:
+            Actor.log.warning(f'Anonymous access failed: {e}. Falling back to authenticated access.')
+
+    # For private profiles or if anonymous failed, try authenticated access
+    try:
+        edge_media = profile._metadata("edge_owner_to_timeline_media")
+        if edge_media and edge_media.get("edges"):
+            Actor.log.info(f'Using {len(edge_media["edges"])} cached posts from profile metadata')
+            for edge in edge_media["edges"]:
+                node = edge["node"]
+                try:
+                    post = instaloader.Post(loader.context, node)
+                    yield post
+                except Exception as e:
+                    Actor.log.debug(f'Could not create post from node {node.get("shortcode", "unknown")}: {e}')
+                    continue
+
+            if edge_media.get("page_info", {}).get("has_next_page", False):
+                Actor.log.info('Attempting GraphQL pagination for more posts...')
+                try:
+                    for post in profile.get_posts():
+                        yield post
+                except instaloader.exceptions.ConnectionException as e:
+                    Actor.log.warning(f'GraphQL pagination blocked: {e}. Using only cached posts.')
+        else:
+            Actor.log.info('No cached posts, using standard get_posts()')
+            yield from profile.get_posts()
+    except Exception as e:
+        Actor.log.warning(f'Error: {e}. Falling back to get_posts()')
+        yield from profile.get_posts()
+
+
 async def main() -> None:
     """Main Actor entry point."""
     async with Actor:
@@ -193,8 +256,11 @@ async def main() -> None:
                 # Process posts
                 if 'posts' in content_types:
                     Actor.log.info(f'Downloading posts from {username}...')
+                    # Try to use cached posts from profile metadata first to avoid GraphQL 403 errors
+                    # When logged in, get_posts() triggers immediate GraphQL pagination which may be blocked
+                    posts_iterator = get_posts_with_fallback(loader, profile, logged_in)
                     async for result in process_posts(
-                        loader, profile, profile.get_posts(),
+                        loader, profile, posts_iterator,
                         'post', max_videos, videos_count, storage_method,
                         include_metadata, filter_options, date_from, date_to,
                         proxy_configuration, state
